@@ -7,11 +7,10 @@ export default function Form() {
     const [submittedData, setSubmittedData] = useState([]);
 
     const handleOnChange = (index, field, value) => {
-        const updated = [...formData];
-        updated[index][field] = value;
+        const updated = formData.map((item, i) => i === index ? { ...item, [field]: value } : item);
         setFormData(updated);
-        const updatedErrors = [...errors];
-        updatedErrors[index][field] = "";
+
+        const updatedErrors = errors.map((err, i) =>i === index ? { ...err, [field]: "" } : err);
         setErrors(updatedErrors);
     };
 
