@@ -154,7 +154,7 @@ export default function Form() {
                     </div>
                 </form>
 
-                {/* Step 3 — Live Form State printed with h3 tags */}
+                {/* Live Form State */}
                 <div className="px-6 pb-6">
                     <div className="bg-orange-50 border border-orange-100 rounded-xl p-5">
                         <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -188,7 +188,7 @@ export default function Form() {
                     </div>
                 </div>
 
-                {/* Step 8 — Submitted Form State in Table */}
+                {/*Submitted Form State in Table */}
                 <div className="bg-gray-50 p-6 border-t border-gray-200">
                     <h3 className="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
                         <span className="w-2 h-6 bg-orange-500 rounded-full"></span>
