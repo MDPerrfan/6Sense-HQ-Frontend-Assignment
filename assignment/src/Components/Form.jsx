@@ -7,10 +7,14 @@ export default function Form() {
     const [submittedData, setSubmittedData] = useState([]);
 
     const handleOnChange = (index, field, value) => {
-        const updated = formData.map((item, i) => i === index ? { ...item, [field]: value } : item);
+        const updated = formData.map((item, i) =>
+            i === index ? { ...item, [field]: value } : item
+        );
         setFormData(updated);
 
-        const updatedErrors = errors.map((err, i) =>i === index ? { ...err, [field]: "" } : err);
+        const updatedErrors = errors.map((err, i) =>
+            i === index ? { ...err, [field]: "" } : err
+        );
         setErrors(updatedErrors);
     };
 
@@ -38,9 +42,7 @@ export default function Form() {
 
         setErrors(newErrors);
 
-        const isValid = newErrors.every(
-            (err) => !err.name && !err.role
-        );
+        const isValid = newErrors.every((err) => !err.name && !err.role);
 
         if (isValid) {
             setSubmittedData([...formData]);
@@ -152,7 +154,41 @@ export default function Form() {
                     </div>
                 </form>
 
-                {/* Table Output */}
+                {/* Step 3 — Live Form State printed with h3 tags */}
+                <div className="px-6 pb-6">
+                    <div className="bg-orange-50 border border-orange-100 rounded-xl p-5">
+                        <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <span className="w-2 h-5 bg-orange-500 rounded-full"></span>
+                            Live Form State
+                        </h3>
+                        <div className="space-y-3">
+                            {formData.map((item, index) => (
+                                <div
+                                    key={index}
+                                    className="flex flex-col sm:flex-row gap-1 sm:gap-6 text-gray-700"
+                                >
+                                    <h3 className="text-sm font-semibold text-gray-400 w-16 shrink-0">
+                                        Row {index + 1}
+                                    </h3>
+                                    <h3 className="text-sm">
+                                        <span className="text-gray-400 font-medium">Name: </span>
+                                        <span className="font-semibold text-gray-700">
+                                            {item.name || "—"}
+                                        </span>
+                                    </h3>
+                                    <h3 className="text-sm">
+                                        <span className="text-gray-400 font-medium">Role: </span>
+                                        <span className="font-semibold text-gray-700">
+                                            {item.role || "—"}
+                                        </span>
+                                    </h3>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Step 8 — Submitted Form State in Table */}
                 <div className="bg-gray-50 p-6 border-t border-gray-200">
                     <h3 className="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
                         <span className="w-2 h-6 bg-orange-500 rounded-full"></span>
