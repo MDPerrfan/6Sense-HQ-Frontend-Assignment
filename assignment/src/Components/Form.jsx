@@ -45,7 +45,7 @@ export default function Form() {
         const isValid = newErrors.every((err) => !err.name && !err.role);
 
         if (isValid) {
-            setSubmittedData([...formData]);
+            setSubmittedData(prev=>[...prev,formData]);
             setFormData([{ name: "", role: "" }]);
             setErrors([{ name: "", role: "" }]);
         }
