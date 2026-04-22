@@ -1,69 +1,83 @@
 import { useState } from "react";
 import { Minus, Plus, Send } from "lucide-react";
 
+
+//helper functions
+const generateId = () => crypto.randomUUID();
+const createRow = () => ({ id: generateId(), name: "", role: "" });
+
 export default function Form() {
-    const [formData, setFormData] = useState([{ name: "", role: "" }]);
-    const [errors, setErrors] = useState([{ name: "", role: "" }]);
+    const [formData, setFormData] = useState([createRow()]);
+    const [errors, setErrors] = useState({});
     const [submittedData, setSubmittedData] = useState([]);
 
-    const handleOnChange = (index, field, value) => {
-        const updated = formData.map((item, i) =>
-            i === index ? { ...item, [field]: value } : item
-        );
-        setFormData(updated);
+    // onChange function
+    const handleOnChange = (id, field, value) => {
 
-        const updatedErrors = errors.map((err, i) =>
-            i === index ? { ...err, [field]: "" } : err
+        setFormData(prev =>
+            prev.map(item => item.id === id
+                ? { ...item, [field]: value }
+                : item)
         );
-        setErrors(updatedErrors);
+
+        setErrors(prev => ({ ...prev, [id]: { ...prev[id], [field]: "" } }));
     };
 
+
+    // add new form  row
     const addField = () => {
-        setFormData([...formData, { name: "", role: "" }]);
-        setErrors([...errors, { name: "", role: "" }]);
+        setFormData(prev => [...prev, createRow()]);
     };
 
-    const deleteField = (index) => {
+    //delete form rows
+    const deleteField = (id) => {
         if (formData.length > 1) {
-            const updatedData = formData.filter((_, i) => i !== index);
-            const updatedErrors = errors.filter((_, i) => i !== index);
-            setFormData(updatedData);
-            setErrors(updatedErrors);
+            setFormData(prev => prev.filter(item => item.id !== id));
+            setErrors(prev => {
+                const updated = { ...prev };
+                delete updated[id];
+                return updated;
+            });
         }
     };
 
+    //Submit form data
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const newErrors = formData.map((item) => ({
-            name: !item.name.trim() ? "Name is required" : "",
-            role: !item.role ? "Role is required" : "",
-        }));
-
+        const newErrors = {};
+        formData.forEach(item => {
+            newErrors[item.id] = {
+                name: !item.name.trim() ? "Name is required" : "",
+                role: !item.role ? "Role is required" : "",
+            };
+        });
         setErrors(newErrors);
 
-        const isValid = newErrors.every((err) => !err.name && !err.role);
+        const isValid = Object.values(newErrors).every(err => !err.name && !err.role);
 
         if (isValid) {
-            setSubmittedData([...formData]);
-            setFormData([{ name: "", role: "" }]);
-            setErrors([{ name: "", role: "" }]);
+            setSubmittedData(prev => [...prev, ...formData]);
+            setFormData([createRow()]);
+            setErrors({});
         }
     };
 
     return (
         <div className="w-full min-h-screen bg-gray-100 p-4 md:p-8 py-4 md:py-20">
             <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden">
+
                 <div className="bg-orange-500 p-6">
                     <h2 className="text-2xl font-bold text-white">
                         Information Form
                     </h2>
                 </div>
 
+                {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     <div className="max-h-[400px] overflow-y-auto space-y-6 pr-2 mb-6">
                         {formData.map((item, index) => (
-                            <div key={index} className="space-y-2">
+                            <div key={item.id} className="space-y-2">
                                 <div className="flex flex-col md:flex-row gap-4 items-start">
 
                                     {/* Input */}
@@ -73,17 +87,16 @@ export default function Form() {
                                             placeholder="Enter name"
                                             value={item.name}
                                             onChange={(e) =>
-                                                handleOnChange(index, "name", e.target.value)
+                                                handleOnChange(item.id, "name", e.target.value)
                                             }
-                                            className={`border rounded-lg p-3 w-full outline-none transition-all focus:ring-2 ${
-                                                errors[index]?.name
-                                                    ? "border-red-500 focus:ring-red-200"
-                                                    : "border-gray-200 focus:border-orange-400 focus:ring-orange-100"
-                                            }`}
+                                            className={`border rounded-lg p-3 w-full outline-none transition-all focus:ring-2 ${errors[item.id]?.name
+                                                ? "border-red-500 focus:ring-red-200"
+                                                : "border-gray-200 focus:border-orange-400 focus:ring-orange-100"
+                                                }`}
                                         />
-                                        {errors[index]?.name && (
+                                        {errors[item.id]?.name && (
                                             <p className="text-red-500 text-xs mt-1 ml-1 italic">
-                                                {errors[index].name}
+                                                {errors[item.id].name}
                                             </p>
                                         )}
                                     </div>
@@ -93,13 +106,12 @@ export default function Form() {
                                         <select
                                             value={item.role}
                                             onChange={(e) =>
-                                                handleOnChange(index, "role", e.target.value)
+                                                handleOnChange(item.id, "role", e.target.value)
                                             }
-                                            className={`border rounded-lg p-3 w-full outline-none transition-all focus:ring-2 appearance-none bg-white ${
-                                                errors[index]?.role
-                                                    ? "border-red-500 focus:ring-red-200"
-                                                    : "border-gray-200 focus:border-orange-400 focus:ring-orange-100"
-                                            }`}
+                                            className={`border rounded-lg p-3 w-full outline-none transition-all focus:ring-2 appearance-none bg-white  ${errors[item.id]?.role
+                                                ? "border-red-500 focus:ring-red-200"
+                                                : "border-gray-200 focus:border-orange-400 focus:ring-orange-100"
+                                                }`}
                                         >
                                             <option value="">Select role</option>
                                             <option value="Frontend">Frontend</option>
@@ -107,9 +119,9 @@ export default function Form() {
                                             <option value="Full Stack">Full Stack</option>
                                             <option value="QA">QA</option>
                                         </select>
-                                        {errors[index]?.role && (
+                                        {errors[item.id]?.role && (
                                             <p className="text-red-500 text-xs mt-1 ml-1 italic">
-                                                {errors[index].role}
+                                                {errors[item.id].role}
                                             </p>
                                         )}
                                     </div>
@@ -125,24 +137,24 @@ export default function Form() {
                                                 <Plus className="size-5" />
                                             </button>
                                         )}
-
                                         <button
                                             type="button"
-                                            onClick={() => deleteField(index)}
-                                            className={`p-3 bg-gray-400 text-white rounded-lg transition-all shadow-sm ${
-                                                formData.length === 1
-                                                    ? "opacity-0 pointer-events-none"
-                                                    : "hover:bg-gray-500"
-                                            }`}
+                                            onClick={() => deleteField(item.id)}
+                                            className={`p-3 bg-gray-400 text-white rounded-lg transition-all shadow-sm ${formData.length === 1
+                                                ? "opacity-0 pointer-events-none"
+                                                : "hover:bg-gray-500"
+                                                }`}
                                         >
                                             <Minus className="size-5" />
                                         </button>
                                     </div>
+
                                 </div>
                             </div>
                         ))}
                     </div>
 
+                    {/* Submit */}
                     <div className="pt-4 border-t border-gray-100">
                         <button
                             type="submit"
@@ -164,7 +176,7 @@ export default function Form() {
                         <div className="space-y-3">
                             {formData.map((item, index) => (
                                 <div
-                                    key={index}
+                                    key={item.id}
                                     className="flex flex-col sm:flex-row gap-1 sm:gap-6 text-gray-700"
                                 >
                                     <h3 className="text-sm font-semibold text-gray-400 w-16 shrink-0">
@@ -188,13 +200,12 @@ export default function Form() {
                     </div>
                 </div>
 
-                {/*Submitted Form State in Table */}
+                {/* Submitted Data Table */}
                 <div className="bg-gray-50 p-6 border-t border-gray-200">
                     <h3 className="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
                         <span className="w-2 h-6 bg-orange-500 rounded-full"></span>
                         Form State
                     </h3>
-
                     <div className="overflow-x-auto rounded-lg border border-gray-200">
                         <table className="w-full text-left bg-white">
                             <thead className="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
@@ -206,10 +217,10 @@ export default function Form() {
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {submittedData.length > 0 ? (
-                                    submittedData.map((data, idx) => (
-                                        <tr key={idx} className="hover:bg-orange-50 transition-colors">
+                                    submittedData.map((data, index) => (
+                                        <tr key={data.id} className="hover:bg-orange-50 transition-colors">
                                             <td className="px-4 py-3 text-gray-500 font-mono">
-                                                #{idx + 1}
+                                                {index + 1}
                                             </td>
                                             <td className="px-4 py-3 font-medium text-gray-800">
                                                 {data.name}
@@ -235,6 +246,7 @@ export default function Form() {
                         </table>
                     </div>
                 </div>
+
             </div>
         </div>
     );
